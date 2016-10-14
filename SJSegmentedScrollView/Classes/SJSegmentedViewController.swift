@@ -22,20 +22,6 @@
 
 import UIKit
 
-@objc public protocol SJSegmentedViewControllerDelegate {
-    
-    @objc optional func didSelectSegmentAtIndex(_ index:Int)
-    
-    /**
-     Method to identify the current controller and segment of contentview
-     
-     - parameter controller: Current controller
-     - parameter segment: selected segment
-     - parameter index: index of selected segment.
-     */
-    @objc optional func didMoveToPage(_ controller: UIViewController, segment: UIButton?, index: Int)
-}
-
 /**
  *  Public protocol of  SJSegmentedViewController for content changes and makes the scroll effect.
  */
@@ -74,19 +60,6 @@ import UIKit
     }
     
     /**
-     *  Set height for segment view.
-     *
-     *  By default the height is 40.0
-     *
-     *  segmentedViewController.segmentViewHeight = 60.0
-     */
-    open var segmentViewHeight: CGFloat = 40.0 {
-        didSet {
-            segmentedScrollView.segmentViewHeight = segmentViewHeight
-        }
-    }
-    
-    /**
      *  Set headerview offset height.
      *
      *  By default the height is 0.0
@@ -96,95 +69,6 @@ import UIKit
     open var headerViewOffsetHeight: CGFloat = 0.0 {
         didSet {
             segmentedScrollView.headerViewOffsetHeight = headerViewOffsetHeight
-        }
-    }
-    
-    /**
-     *  Set color for selected segment.
-     *
-     *  By default the color is light gray.
-     *
-     *  segmentedViewController.selectedSegmentViewColor = UIColor.redColor()
-     */
-    open var selectedSegmentViewColor = UIColor.lightGray {
-        didSet {
-            segmentedScrollView.selectedSegmentViewColor = selectedSegmentViewColor
-        }
-    }
-    
-    /**
-     *  Set height for selected segment view.
-     *
-     *  By default the height is 5.0
-     *
-     *  segmentedViewController.selectedSegmentViewHeight = 5.0
-     */
-    open var selectedSegmentViewHeight: CGFloat = 5.0 {
-        didSet {
-            segmentedScrollView.selectedSegmentViewHeight = selectedSegmentViewHeight
-        }
-    }
-    
-    /**
-     *  Set color for segment title.
-     *
-     *  By default the color is black.
-     *
-     *  segmentedViewController.segmentTitleColor = UIColor.redColor()
-     */
-    open var segmentTitleColor = UIColor.black {
-        didSet {
-            segmentedScrollView.segmentTitleColor = segmentTitleColor
-        }
-    }
-    
-    /**
-     *  Set color for segment background.
-     *
-     *  By default the color is white.
-     *
-     *  segmentedViewController.segmentBackgroundColor = UIColor.whiteColor()
-     */
-    open var segmentBackgroundColor = UIColor.white {
-        didSet {
-            segmentedScrollView.segmentBackgroundColor = segmentBackgroundColor
-        }
-    }
-    
-    /**
-     *  Set shadow for segment.
-     *
-     *  By default the color is light gray.
-     *
-     *  segmentedViewController.segmentShadow = SJShadow.light()
-     */
-    open var segmentShadow = SJShadow() {
-        didSet {
-            segmentedScrollView.segmentShadow = segmentShadow
-        }
-    }
-    
-    /**
-     *  Set font for segment title.
-     *
-     *  segmentedViewController.segmentTitleFont = UIFont.systemFontOfSize(14.0)
-     */
-    open var segmentTitleFont = UIFont.systemFont(ofSize: 14.0) {
-        didSet {
-            segmentedScrollView.segmentTitleFont = segmentTitleFont
-        }
-    }
-    
-    /**
-     *  Set bounce for segment.
-     *
-     *  By default it is set to false.
-     *
-     *  segmentedViewController.segmentBounces = true
-     */
-    open var segmentBounces = false {
-        didSet {
-            segmentedScrollView.segmentBounces = segmentBounces
         }
     }
     
@@ -206,25 +90,9 @@ import UIKit
         }
     }
     
-    /**
-     *  Array of segments. For single view controller segments will be empty.
-     */
-    open var segments: [UIButton] {
-        get {
-            
-            if let segmentView = segmentedScrollView.segmentView {
-                return segmentView.segments
-            }
-            
-            return [UIButton]()
-        }
-    }
-    
-    open var delegate:SJSegmentedViewControllerDelegate?
     var viewObservers = [UIView]()
     var segmentedScrollView = SJSegmentedScrollView(frame: CGRect.zero)
     var segmentScrollViewTopConstraint: NSLayoutConstraint?
-    
     
     /**
      Custom initializer for SJSegmentedViewController.
@@ -288,16 +156,8 @@ import UIKit
      */
     func setDefaultValuesToSegmentedScrollView() {
         
-        segmentedScrollView.selectedSegmentViewColor    = selectedSegmentViewColor
-        segmentedScrollView.selectedSegmentViewHeight   = selectedSegmentViewHeight
-        segmentedScrollView.segmentTitleColor           = segmentTitleColor
-        segmentedScrollView.segmentBackgroundColor      = segmentBackgroundColor
-        segmentedScrollView.segmentShadow               = segmentShadow
-        segmentedScrollView.segmentTitleFont            = segmentTitleFont
-        segmentedScrollView.segmentBounces              = segmentBounces
         segmentedScrollView.headerViewHeight            = headerViewHeight
         segmentedScrollView.headerViewOffsetHeight      = headerViewOffsetHeight
-        segmentedScrollView.segmentViewHeight           = segmentViewHeight
     }
     
     /**
@@ -336,14 +196,6 @@ import UIKit
         view.addConstraint(segmentScrollViewTopConstraint!)
         
         segmentedScrollView.setContentView()
-        
-        // selected segment at index
-        segmentedScrollView.didSelectSegmentAtIndex = {(segment,index) in
-            let selectedController = self.segmentControllers[index]
-            
-            self.delegate?.didMoveToPage?(selectedController, segment: segment!, index: index)
-            
-        }
     }
     
     /**
@@ -366,7 +218,6 @@ import UIKit
     func addContentControllers(_ contentControllers: [UIViewController]) {
         
         viewObservers.removeAll()
-        segmentedScrollView.addSegmentView(contentControllers, frame: view.bounds)
         
         var index = 0
         for controller in contentControllers {
@@ -391,8 +242,6 @@ import UIKit
             segmentedScrollView.addObserverFor(observeView!)
             index += 1
         }
-        
-        segmentedScrollView.segmentView?.contentView = segmentedScrollView.contentView
     }
     
     /**
@@ -406,17 +255,6 @@ import UIKit
         
         addHeaderViewController(headerViewController!)
         addContentControllers(segmentControllers)
-        
-        
-        //Delegate call for setting the first view of segments.
-        var segment: UIButton?
-        if segments.count > 0 {
-            segment = segments[0]
-        }
-        
-        delegate?.didMoveToPage?(segmentControllers[0],
-                                 segment: segment,
-                                 index: 0)
     }
     
 }
