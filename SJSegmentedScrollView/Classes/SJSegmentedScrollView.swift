@@ -45,9 +45,7 @@ class SJSegmentedScrollView: UIScrollView {
         showsVerticalScrollIndicator = true
         bounces = false
         
-        addObserver(self, forKeyPath: "contentOffset",
-                         options: [NSKeyValueObservingOptions.new, NSKeyValueObservingOptions.old],
-                         context: nil)
+        addObserver(self, forKeyPath: "contentOffset", options: [.new, .old], context: nil)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -55,9 +53,7 @@ class SJSegmentedScrollView: UIScrollView {
     }
     
     deinit {
-        removeObserver(self,
-                            forKeyPath: "contentOffset",
-                            context: nil)
+        removeObserver(self, forKeyPath: "contentOffset", context: nil)
     }
     
     func setContentView() {
@@ -118,10 +114,7 @@ class SJSegmentedScrollView: UIScrollView {
     }
     
     func addObserverFor(_ view: UIView) {
-        
-        view.addObserver(self, forKeyPath: "contentOffset",
-                         options: [NSKeyValueObservingOptions.new, NSKeyValueObservingOptions.old],
-                         context: nil)
+        view.addObserver(self, forKeyPath: "contentOffset", options: [.new, .old], context: nil)
     }
     
     func addContentView(_ contentView: UIView, frame: CGRect) {
@@ -135,10 +128,8 @@ class SJSegmentedScrollView: UIScrollView {
     }
     
     func updateSubviewsFrame(_ frame: CGRect) {
-        
         contentViewHeightConstraint.constant = getContentHeight()
         contentView?.layoutIfNeeded()
-        
         contentView?.updateContentControllersFrame(frame)
     }
     
@@ -202,16 +193,10 @@ class SJSegmentedScrollView: UIScrollView {
         }
     }
     
-    func handleScrollDown(_ scrollView: UIScrollView,
-                          change: CGFloat,
-                          oldPosition: CGPoint) {
-        
+    func handleScrollDown(_ scrollView: UIScrollView, change: CGFloat, oldPosition: CGPoint) {
         let offset = (headerViewHeight! - headerViewOffsetHeight!)
-        
         if contentOffset.y < offset {
-            
             if scrollView.contentOffset.y >= 0.0 {
-                
                 var yPos = contentOffset.y - change
                 yPos = yPos > offset ? offset : yPos
                 let updatedPos = CGPoint(x: contentOffset.x, y: yPos)
@@ -221,16 +206,10 @@ class SJSegmentedScrollView: UIScrollView {
         }
     }
 
-	override func observeValue(forKeyPath keyPath: String?,
-	                           of object: Any?,
-	                           change: [NSKeyValueChangeKey : Any]?,
-	                           context: UnsafeMutableRawPointer?) {
+	override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
 		if !observing { return }
-
-		let scrollView = object as? UIScrollView
-		if scrollView == nil { return }
-		if scrollView == self { return }
-
+        guard let scrollView = object as? UIScrollView, scrollView != self else { return }
+        
 		let changeValues = change as! [NSKeyValueChangeKey: AnyObject]
 
 		if let new = changeValues[NSKeyValueChangeKey.newKey]?.cgPointValue,
@@ -239,15 +218,9 @@ class SJSegmentedScrollView: UIScrollView {
 			let diff = old.y - new.y
 
 			if diff > 0.0 {
-
-				handleScrollUp(scrollView!,
-				                    change: diff,
-				                    oldPosition: old)
+				handleScrollUp(scrollView, change: diff, oldPosition: old)
 			} else {
-
-				handleScrollDown(scrollView!,
-				                      change: diff,
-				                      oldPosition: old)
+				handleScrollDown(scrollView, change: diff, oldPosition: old)
 			}
 		}
 	}

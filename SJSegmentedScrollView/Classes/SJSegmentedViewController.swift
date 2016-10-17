@@ -119,9 +119,7 @@ import UIKit
     
     deinit {
         for view in viewObservers {
-            view.removeObserver(self,
-                                forKeyPath: "contentOffset",
-                                context: nil)
+            view.removeObserver(self, forKeyPath: "contentOffset", context: nil)
         }
     }
     
